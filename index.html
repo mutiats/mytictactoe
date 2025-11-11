@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>TicTacToe Mumu Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2b0f12;--maroon:#5B0F1A;--maroon-2:#3f0b11;--gold:#D4AF37;--muted:#b9a6a6;--glass:rgba(255,255,255,0.04);--soft-shadow:0 10px 30px rgba(16,10,10,0.45);}
+[data-theme="light"]{--bg:#fff8f7;--maroon:#6a141c;--maroon-2:#7b1b21;--gold:#b9852d;--muted:#6b4a4a;--glass:rgba(255,255,255,0.8);}
+*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--muted);background:linear-gradient(180deg,#1a0b0c 0%,var(--bg) 100%);display:flex;align-items:center;justify-content:center}
+.app{width:100%;max-width:480px;padding:16px}
+.card{background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.02));border-radius:16px;padding:16px;box-shadow:var(--soft-shadow);backdrop-filter: blur(6px);overflow:visible}
+.header{display:flex;flex-direction:column;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,var(--maroon),var(--maroon-2));display:flex;align-items:center;justify-content:center;color:var(--gold);font-weight:800;box-shadow:0 6px 18px rgba(91,15,26,0.45);font-size:20px;}
+h1{margin:0;color:var(--gold);font-size:20px;text-align:center}
+.subtitle{font-size:12px;color:var(--muted);text-align:center}
+.controls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+select,button{border:none;padding:10px 12px;border-radius:12px;font-weight:600;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,0.03),rgba(0,0,0,0.06));color:var(--gold);flex:1;min-width:90px;text-align:center}
+.toggle{background:transparent;color:var(--muted);padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.main{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;margin-top:16px}
+.board-wrap{position:relative;width:100%;padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));box-shadow:inset 0 2px 12px rgba(0,0,0,0.25)}
+.board{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px;width:100%;aspect-ratio:1/1}
+.cell{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:visible;transition:all .3s ease}
+.cell:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 12px 22px rgba(91,15,26,0.45);}
+.cell.disabled{pointer-events:none;opacity:0.9}
+.mark{width:70%;height:70%;display:flex;align-items:center;justify-content:center}
+svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 4px var(--gold));}
+.x-stroke{stroke:var(--gold);stroke-width:10;stroke-linecap:round;stroke-linejoin:round;fill:none;}
+.o-stroke{stroke:var(--maroon);stroke-width:10;fill:none;}
+.hud{display:flex;flex-direction:column;gap:6px;width:100%;text-align:center}
+.status{font-weight:700;color:var(--gold)}
+.small{font-size:12px;color:var(--muted)}
+.scores{display:flex;gap:6px;justify-content:center;margin-top:6px}
+.pill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;color:var(--gold);font-weight:700}
+.pop{animation:pop .2s cubic-bezier(.2,.9,.2,1);} @keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.draw{stroke-dasharray:260;stroke-dashoffset:260;animation:draw 420ms ease forwards} @keyframes draw{to{stroke-dashoffset:0}}
+.flash{animation:flash .9s ease both} @keyframes flash{0%{filter:brightness(1)}50%{filter:brightness(1.8)}100%{filter:brightness(1)}}
+.shake{animation:shake 520ms cubic-bezier(.36,.07,.19,.97)} @keyframes shake{0%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(4px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}100%{transform:translateX(0)}}
+canvas.confetti{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:9;border-radius:12px}
+footer{display:flex;justify-content:center;align-items:center;margin-top:12px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body data-theme="dark">
+<div class="app">
+<div class="card">
+<div class="header">
+<div class="brand">
+<div class="logo">M</div>
+<div>
+<h1>TicTacToe Mumu</h1>
+<div class="subtitle">Ultra Mobile • AI Pintar • Animasi Modern</div>
+</div>
+</div>
+<div class="controls">
+<select id="difficulty">
+<option value="easy">Easy</option>
+<option value="medium">Medium</option>
+<option value="hard" selected>Hard</option>
+</select>
+<button id="themeToggle" class="toggle">Light</button>
+<button id="restart">Restart</button>
+</div>
+</div>
+<div class="main">
+<div class="board-wrap">
+<div id="board" class="board"></div>
+<canvas id="confetti" class="confetti"></canvas>
+</div>
+<div class="hud">
+<div class="status" id="status">Giliranmu — <strong id="turn">X</strong></div>
+<div class="small">Klik kotak untuk bermain. Mode: <span id="modeLabel">Hard</span></div>
+<div class="scores">
+<div class="pill">X: <span id="scoreX">0</span></div>
+<div class="pill">O: <span id="scoreO">0</span></div>
+<div class="pill">Draw: <span id="scoreD">0</span></div>
+</div>
+</div>
+</div>
+<footer>Created by Mumu</footer>
+</div>
+</div>
+<script>
+// JS mobile TicTacToe Mumu
+const boardEl=document.getElementById('board'),confettiCanvas=document.getElementById('confetti'),difficulty=document.getElementById('difficulty'),restartBtn=document.getElementById('restart'),themeToggle=document.getElementById('themeToggle'),status=document.getElementById('status'),turnEl=document.getElementById('turn'),scoreX=document.getElementById('scoreX'),scoreO=document.getElementById('scoreO'),scoreD=document.getElementById('scoreD');
+let W,H,board=Array(9).fill(null),current='X',locked=false,gameOver=false,scores={X:0,O:0,D:0};
+const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]],ctx=confettiCanvas.getContext('2d'),particles=[];
+function fitCanvas(){W=confettiCanvas.width=boardEl.clientWidth;H=confettiCanvas.height=boardEl.clientHeight;}
+window.addEventListener('resize',fitCanvas);
+function spawnConfetti(x,y){for(let i=0;i<50;i++){particles.push({x:x+(Math.random()-0.5)*50,y:y+(Math.random()-0.5)*50,vx:(Math.random()-0.5)*5,vy:-Math.random()*7-2,size:Math.random()*6+3,rot:Math.random()*360,color:['#5B0F1A','#D4AF37','#ff9fb0'][Math.floor(Math.random()*3)],life:Math.random()*50+50});}}
+function updateParticles(){for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.vy+=0.2;p.vx*=0.995;p.x+=p.vx;p.y+=p.vy;p.rot+=6;p.life--;if(p.life<=0||p.y>H+40)particles.splice(i,1);}}
+function drawParticles(){ctx.clearRect(0,0,W,H);for(const p of particles){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();}}
+function confettiLoop(){updateParticles();drawParticles();requestAnimationFrame(confettiLoop);}confettiLoop();
+function createBoard(){boardEl.innerHTML='';for(let i=0;i<9;i++){const cell=document.createElement('div');cell.className='cell';cell.dataset.index=i;cell.innerHTML=`<div class='mark'></div>`;cell.addEventListener('click',onCellClick);boardEl.appendChild(cell);}fitCanvas();}
+function onCellClick(e){if(locked||gameOver)return;const idx=Number(e.currentTarget.dataset.index);if(board[idx])return;playMove(idx);}
+function playMove(idx){board[idx]=current;renderMark(idx,current);current=current==='X'?'O':'X';turnEl.innerText=current;checkState();if(!gameOver&&current==='O'){locked=true;setTimeout(()=>{computerMove();locked=false;},difficulty.value==='easy'?300:450);}}
+function renderMark(idx,player){const cell=boardEl.children[idx];const mark=cell.querySelector('.mark');mark.innerHTML=player==='X'?`<svg viewBox='0 0 100 100'><path class='x-stroke draw' d='M20 20 L80 80 M80 20 L20 80'/></svg>`:`<svg viewBox='0 0 100 100'><circle class='o-stroke draw' cx='50' cy='50' r='30'/></svg>`;mark.classList.add('pop');setTimeout(()=>mark.classList.remove('pop'),220);}
+function checkState(){for(const w of wins){const [a,b,c]=w;if(board[a]&&board[a]===board[b]&&board[a]===board[c]){onWin(board[a],w);return;}}if(board.every(v=>v!==null))onDraw();}
+function onWin(player,line){gameOver=true;scores[player]++;updateScores();status.innerText=player==='X'?'Kamu menang! 🎉':'Komputer menang 🤖';line.forEach(i=>boardEl.children[i].classList.add('flash'));spawnConfetti(75,75);}
+function onDraw(){gameOver=true;scores.D++;updateScores();status.innerText='Seri! 🤝';}
+function updateScores(){scoreX.innerText=scores.X;scoreO.innerText=scores.O;scoreD.innerText=scores.D;}
+function computerMove(){if(gameOver)return;const empties=board.map((v,i)=>v===null?i:null).filter(i=>i!==null);let choice;if(difficulty.value==='easy'){choice=empties[Math.floor(Math.random()*empties.length)];} else if(difficulty.value==='medium'){const winMove=empties.find(i=>{board[i]='O';const win=wins.some(w=>w.every(idx=>board[idx]==='O'));board[i]=null;return win;});const blockMove=empties.find(i=>{board[i]='X';const win=wins.some(w=>w.every(idx=>board[idx]==='X'));board[i]=null;return win;});choice=winMove||blockMove||empties[Math.floor(Math.random()*empties.length)];} else{const best=minimax(board.slice(),'O').index;choice=best;}board[choice]='O';renderMark(choice,'O');current='X';turnEl.innerText='X';checkState();}
+function minimax(newBoard,player){const avail=newBoard.map((v,i)=>v===null?i:null).filter(i=>i!==null);if(checkWinStatic(newBoard,'X'))return{score:-10};if(checkWinStatic(newBoard,'O'))return{score:10};if(avail.length===0)return{score:0};let moves=[];for(const i of avail){const move={index:i};newBoard[i]=player;const result=minimax(newBoard,player==='O'?'X':'O');move.score=result.score;newBoard[i]=null;moves.push(move);}let bestMove;if(player==='O'){let bestScore=-Infinity;for(const m of moves)if(m.score>bestScore){bestScore=m.score;bestMove=m;}}else{let bestScore=Infinity;for(const m of moves)if(m.score<bestScore){bestScore=m.score;bestMove=m;}}return bestMove;}
+function checkWinStatic(b,p){return wins.some(w=>{const [a,b1,c]=w;return b[a]===p&&b[b1]===p&&b[c]===p;});}
+restartBtn.addEventListener('click',()=>{board=Array(9).fill(null);gameOver=false;current='X';turnEl.innerText='X';createBoard();});
+themeToggle.addEventListener('click',()=>{document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark';themeToggle.innerText=document.body.dataset.theme==='dark'?'Light':'Dark';});
+createBoard();
+</script>
+</body>
+</html>
